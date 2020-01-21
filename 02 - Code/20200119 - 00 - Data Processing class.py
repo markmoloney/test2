@@ -88,8 +88,7 @@ class DataProcessing:
         """
         # Select only numeric features first
         numeric_columns = []
-        for col in self.data.columns:
-            if self.data[col].dtype!='object':
+        for col self.data[col].dtype!='object':
                 numeric_columns.append(col)
         scaler = preprocessing.StandardScaler().fit(self.data[numeric_columns]) 
         # Now we can standardise
