@@ -107,6 +107,11 @@ class DataProcessing:
         return self.X
 # -
 
+    
+    def pca_reduction(self, variance):
+        pca = PCA(n_components = variance)
+        self.X = pca.fit_transform(self.X)
+        return self.X
 
 
 
