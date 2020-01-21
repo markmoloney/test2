@@ -1,0 +1,3 @@
+please find data from kaggle and leave in the data folder:
+
+https://www.kaggle.com/c/ieee-fraud-detection/data
