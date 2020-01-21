@@ -9,6 +9,7 @@ import numpy as np
 from sklearn import preprocessing
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.decomposition import PCA
 
 
 # -
@@ -105,6 +106,11 @@ class DataProcessing:
         return X_res, y_res
 # -
 
+    
+    def pca_reduction(self, variance):
+        pca = PCA(n_components = variance)
+        self.X = pca.fit_transform(self.X)
+        return self.X
 
 
 
