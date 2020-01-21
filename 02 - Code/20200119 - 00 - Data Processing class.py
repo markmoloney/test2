@@ -17,7 +17,7 @@ from imblearn.over_sampling import RandomOverSampler
 # ! pip freeze > requirements.txt
 
 # Run this to install the packages
-# ! pip install -r requirements.txt --no-index --find-links file:///tmp/packages
+# ! pip install -U -r requirements.txt
 
 #
 
@@ -28,8 +28,10 @@ class DataProcessing:
     def __init__(self, data, target):
         self.data = data.replace({'':np.nan})
         self.target = target
-        self.X = data.loc[:, data.columns != target].values
-        self.y = data.loc[:, [target]].values
+        self.X = self.data.drop(target, axis = 1)
+        self.y = self.data[target]
+        #self.X = data.loc[:, data.columns != target].values
+        #self.y = data.loc[:, [target]].values
     
     def threshold_col_del(self, threshold):
         """
@@ -80,14 +82,16 @@ class DataProcessing:
         This function standardises the numeric columns of a dataframe. 
         """
         # Select only numeric features first
+        self.X = self.data.drop(self.target, axis = 1)
+        #self.X = self.data.loc[:, self.data.columns != self.target].values
         numeric_columns = []
-        for col in self.data.columns:
-            if self.data[col].dtype!='object':
+        for col in self.X.columns:
+            if self.X[col].dtype!='object':
                 numeric_columns.append(col)
-        scaler = preprocessing.StandardScaler().fit(self.data[numeric_columns]) 
+        scaler = preprocessing.StandardScaler().fit(self.X[numeric_columns]) 
         # Now we can standardise
-        self.data[numeric_columns] = scaler.transform(self.data[numeric_columns])
-        return self.data
+        self.X[numeric_columns] = scaler.transform(self.X[numeric_columns])
+        return self.X
     
     def balancesample(self, typ, rs=42):
         self.X = self.data.loc[:, data.columns != target].values
