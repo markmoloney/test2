@@ -13,6 +13,12 @@ from imblearn.over_sampling import RandomOverSampler
 
 # -
 
+# This will update the requirement packages the notebook.
+# ! pip freeze > requirements.txt
+
+# Run this to install the packages
+# ! pip install -r requirements.txt --no-index --find-links file:///tmp/packages
+
 #
 
 # +
@@ -82,6 +88,7 @@ class DataProcessing:
         # Now we can standardise
         self.data[numeric_columns] = scaler.transform(self.data[numeric_columns])
         return self.data
+    
     def balancesample(self, typ, rs=42):
         self.X = self.data.loc[:, data.columns != target].values
         self.y = self.data.loc[:, [target]].values
