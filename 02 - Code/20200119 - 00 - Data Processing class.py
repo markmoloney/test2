@@ -44,7 +44,7 @@ class DataProcessing:
             - 'integer' fills the nulls with an integer (-999 by default).
         """
         for i in attribute_list:     
-            print(self.data[i].dtype)
+            #print(self.data[i].dtype)
             if stat == 'median':
                 self.data[i].fillna(self.data[i].median(), inplace=True) 
                 self.data[i] = self.data[i].astype(float)
