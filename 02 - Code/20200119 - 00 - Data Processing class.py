@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 # coding: utf-8
 
-# In[2]:
+
+# +
 
 import numpy as np
 from sklearn import preprocessing
 
 
-# In[ ]:
+# +
 
 class DataProcessing:
     
@@ -75,7 +76,7 @@ class DataProcessing:
 
 
 
-
+hello how are yo udoing
 
 
 
