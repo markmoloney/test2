@@ -3,15 +3,12 @@
 # #Please install this package with Python 3.8.1
 # pip install -U imbalanced-learn
 
-# +
-
 import numpy as np
 from sklearn import preprocessing
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
+from sklearn.decomposition import PCA
 
-
-# -
 
 # This will update the requirement packages the notebook.
 # ! pip freeze > requirements.txt
@@ -103,8 +100,12 @@ class DataProcessing:
             ros = RandomOverSampler(random_state=rs)
             X_res, y_res = ros.fit_resample(self.X, self.y)
         return X_res, y_res
+    
+    def pca_reduction(self, variance):
+        pca = PCA(n_components = variance)
+        self.X = pca.fit_transform(self.X)
+        return self.X
 # -
-
 
 
 

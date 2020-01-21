@@ -166,6 +166,9 @@ pylint==2.4.4
 pyodbc==4.0.27
 pyOpenSSL==19.1.0
 pyparsing==2.4.6
+PyQt5==5.12.3
+PyQt5-sip==12.7.0
+PyQtWebEngine==5.12.1
 pyrsistent==0.15.6
 PySocks==1.7.1
 pytest==5.3.2
@@ -225,6 +228,7 @@ toolz==0.10.0
 tornado==6.0.3
 tqdm==4.41.1
 traitlets==4.3.3
+typed-ast==1.4.1
 unicodecsv==0.14.1
 urllib3==1.25.7
 wcwidth==0.1.7
