@@ -130,13 +130,13 @@ class DataProcessing:
             ros = RandomOverSampler(random_state=rs)
             X_res, y_res = ros.fit_resample(self.X, self.y)
         return X_res, y_res
-# -
 
-    
     def pca_reduction(self, variance):
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
+        self.X = pd.DataFrame(self.X)
         return self.X
+
 
 df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
 df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
@@ -151,7 +151,10 @@ attrib_list = list(df.data.columns)
 df.fill_null(attrib_list, 'mean', integer = -999)
 
 df.standardiser()
+df.pca_reduction(0.95)
 # -
+
+df.X
 
 y_train = df.y
 X_train = df.X
