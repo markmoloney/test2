@@ -138,25 +138,45 @@ class DataProcessing:
         self.X = pca.fit_transform(self.X)
         return self.X
 
+df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
+df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
+df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
+# +
+df = DataProcessing(df_tot, 'isFraud')
+df.threshold_col_del(0.25)
+df.lblencoder()
 
+attrib_list = list(df.data.columns)
+df.fill_null(attrib_list, 'mean', integer = -999)
 
+df.standardiser()
+# -
 
+y_train = df.y
+X_train = df.X
 
-
-
-
-
+missing_values_table(X_train)
 
 from sklearn.decomposition import PCA 
-pca = PCA(n_components = 2)
+pca = PCA(n_components = 0.95)
 X2D = pca.fit_transform(X_train)
 
+X2D.shape
+
+X2D.
+
 pca.explained_variance_ratio_
+
+# +
+import matplotlib
+import matplotlib.pyplot as plt
+from matplotlib.pyplot import figure
 
 figure(num=None, figsize=(15, 8), dpi=80, facecolor='w', edgecolor='k')
 colors = ['red', 'green']
 plt.scatter(X2D[:, 0], X2D[:, 1], c=y_train, zorder=10, s=2, cmap=matplotlib.colors.ListedColormap(colors))
+# -
 
 
 pca = PCA()
