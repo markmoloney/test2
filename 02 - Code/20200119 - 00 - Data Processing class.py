@@ -82,6 +82,24 @@ class DataProcessing:
 
 
 
+    def standardiser(self):
+        """
+        This function standardises the numeric columns of a dataframe. 
+        """
+        # Select only numeric features first
+        numeric_columns = []
+        for col in self.data.columns:
+            if self.data[col].dtype!='object':
+                numeric_columns.append(col)
+        scaler = preprocessing.StandardScaler().fit(self.data[numeric_columns]) 
+        # Now we can standardise
+        self.data[numeric_columns] = scaler.transform(self.data[numeric_columns])
+        return self.data
+
+
+
+
+
 
 
 # -
