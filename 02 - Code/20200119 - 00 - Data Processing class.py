@@ -28,8 +28,10 @@ class DataProcessing:
     def __init__(self, data, target):
         self.data = data.replace({'':np.nan})
         self.target = target
-        self.X = data.loc[:, data.columns != target].values
-        self.y = data.loc[:, [target]].values
+        self.X = self.data.drop(target, axis = 1)
+        self.y = self.data[target]
+        #self.X = data.loc[:, data.columns != target].values
+        #self.y = data.loc[:, [target]].values
     
     def threshold_col_del(self, threshold):
         """
@@ -80,7 +82,8 @@ class DataProcessing:
         This function standardises the numeric columns of a dataframe. 
         """
         # Select only numeric features first
-        self.X = self.data.loc[:, data.columns != target].values
+        self.X = self.data.drop(self.target, axis = 1)
+        #self.X = self.data.loc[:, self.data.columns != self.target].values
         numeric_columns = []
         for col in self.X.columns:
             if self.X[col].dtype!='object':
