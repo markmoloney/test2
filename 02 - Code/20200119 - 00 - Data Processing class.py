@@ -1,25 +1,34 @@
 #!/usr/bin/env python
 # coding: utf-8
-
+# #Please install this package with Python 3.8.1
+# pip install -U imbalanced-learn
 
 # +
 
 import numpy as np
 from sklearn import preprocessing
+from imblearn.under_sampling import RandomUnderSampler
+from imblearn.over_sampling import RandomOverSampler
 
+
+# -
+
+#
 
 # +
 
 class DataProcessing:
     
-    def __init__(self, data):
-        self.data = data
+    def __init__(self, data, target):
+        self.data = data.replace({'':np.nan})
+        self.target = target
+        self.X = data.loc[:, data.columns != target].values
+        self.y = data.loc[:, [target]].values
     
     def threshold_col_del(self, threshold):
         """
         This function keeps only columns that have a share of non-missing values above the threshold. 
         """
-        self.data=self.data.replace({'':np.nan})
         self.data = self.data.dropna(thresh=threshold*len(self.data), axis=1)
         return self.data   
     
@@ -73,13 +82,16 @@ class DataProcessing:
         # Now we can standardise
         self.data[numeric_columns] = scaler.transform(self.data[numeric_columns])
         return self.data
-
-
-
-
-
-
-
+    def balancesample(self, typ, rs=42):
+        self.X = self.data.loc[:, data.columns != target].values
+        self.y = self.data.loc[:, [target]].values
+        if typ == "under":
+            rus = RandomUnderSampler(random_state=rs)
+            X_res, y_res = rus.fit_resample(self.X, self.y)
+        if typ == "over":
+            ros = RandomOverSampler(random_state=rs)
+            X_res, y_res = ros.fit_resample(self.X, self.y)
+        return X_res, y_res
 # -
 
 
