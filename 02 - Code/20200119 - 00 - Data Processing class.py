@@ -3,8 +3,9 @@
 # #Please install this package with Python 3.8.1
 # pip install -U imbalanced-learn
 
-# +
-
+import pandas as pd
+import numpy as np
+import datetime
 import numpy as np
 from sklearn import preprocessing
 from imblearn.under_sampling import RandomUnderSampler
@@ -99,7 +100,81 @@ class DataProcessing:
             ros = RandomOverSampler(random_state=rs)
             X_res, y_res = ros.fit_resample(self.X, self.y)
         return X_res, y_res
+    
+    
+    
 # -
+
+def missing_values_table(df):
+        # Total missing values
+        mis_val = df.isnull().sum()
+        
+        # Percentage of missing values
+        mis_val_percent = 100 * df.isnull().sum() / len(df)
+        
+        # Make a table with the results
+        mis_val_table = pd.concat([mis_val, mis_val_percent], axis=1)
+        
+        # Rename the columns
+        mis_val_table_ren_columns = mis_val_table.rename(
+        columns = {0 : 'Missing Values', 1 : '% of Total Values'})
+        
+        # Sort the table by percentage of missing descending
+        mis_val_table_ren_columns = mis_val_table_ren_columns[
+            mis_val_table_ren_columns.iloc[:,1] != 0].sort_values(
+        '% of Total Values', ascending=False).round(1)
+        
+        # Print some summary information
+        print ("Your selected dataframe has " + str(df.shape[1]) + " columns.\n"      
+            "There are " + str(mis_val_table_ren_columns.shape[0]) +
+              " columns that have missing values.")
+        
+        # Return the dataframe with missing information
+        return mis_val_table_ren_columns
+
+
+df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
+df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
+df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
+
+df = DataProcessing(df_tot, 'isFraud')
+
+pd.options.display.max_rows = 999
+missing_values_table(df.data)
+
+df.threshold_col_del(0.25)
+
+# +
+pd.options.display.max_rows = 999
+
+missing_values_table(df.data)
+# -
+
+df.lblencoder()
+
+df.standardiser()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
