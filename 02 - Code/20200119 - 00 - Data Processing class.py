@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 # coding: utf-8
+# +
 # #Please install this package with Python 3.8.1
 # pip install -U imbalanced-learn
 
@@ -11,13 +12,12 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.decomposition import PCA
 
-#%%
-
+# +
 # This will update the requirement packages the notebook.
-# ! pip freeze > requirements.txt
+# #! pip freeze > requirements.txt
 
 # Run this to install the packages
-# ! pip install -U -r requirements.txt
+# #! pip install -U -r requirements.txt
 
 def missing_values_table(df):
         # Total missing values
@@ -47,32 +47,26 @@ def missing_values_table(df):
         return mis_val_table_ren_columns
 
 
-#
+
+# -
 
 class DataProcessing:
     
     def __init__(self, data, target):
         self.data = data.replace({'':np.nan})
+        #self.data = data
         self.target = target
         self.X = self.data.drop(target, axis = 1)
         self.y = self.data[target]
-    
+        
     def threshold_col_del(self, threshold):
         """
         This function keeps only columns that have a share of non-missing values above the threshold. 
         """
         self.data = self.data.dropna(thresh=threshold*len(self.data), axis=1) 
+        self.X = self.data.drop(self.target, axis =1)
+        self.y = self.data[self.target]
     
-    def lblencoder(self):
-        """
-        This function replaces string variables with encoded values.
-        """
-        for i in self.data.columns:
-            if self.data[i].dtype=='object':
-                lbl = preprocessing.LabelEncoder()
-                lbl.fit(list(self.data[i].values))
-                self.data[i] = lbl.transform(list(self.data[i].values))
-        
     def extract_timestamps(self, start_date = '2017-12-01'):
         """
         This function extracts different time stamps from the variable 'TransactionDT'
@@ -86,7 +80,23 @@ class DataProcessing:
         self.data['Hours'] = self.data['Date'].dt.hour
         self.data['Minutes'] = self.data['Date'].dt.minute
         self.data.drop('Date', axis = 1, inplace = True)
+        
+        self.X = self.data.drop(self.target, axis =1)
+        self.y = self.data[self.target]
     
+    def lblencoder(self):
+        """
+        This function replaces string variables with encoded values.
+        """
+        for i in self.data.columns:
+            if self.data[i].dtype=='object':
+                lbl = preprocessing.LabelEncoder()
+                lbl.fit(list(self.data[i].values))
+                self.data[i] = lbl.transform(list(self.data[i].values))
+                
+        self.X = self.data.drop(self.target, axis =1)
+        self.y = self.data[self.target]
+        
     def fill_null(self, attribute_list, stat, integer = -999): 
         """
         This function fills null values of selected columns with one of four different methods:
@@ -97,7 +107,6 @@ class DataProcessing:
             - 'integer' fills the nulls with an integer (-999 by default).
         """
         for i in attribute_list:     
-            #print(self.data[i].dtype)
             if stat == 'median':
                 self.data[i].fillna(self.data[i].median(), inplace=True) 
                 self.data[i] = self.data[i].astype(float)
@@ -111,9 +120,10 @@ class DataProcessing:
                 self.data[i].fillna(integer, inplace=True) 
                 self.data[i] = self.data[i].astype(float)                
             #print(self.data[i].dtype)
+        
+        self.X = self.data.drop(self.target, axis =1)
+        self.y = self.data[self.target]
     
-
-  
     def balancesample(self, typ, rs=42):
         #Updating the self.X and self.y
         self.X = self.data.drop(self.target, axis = 1)
@@ -122,7 +132,6 @@ class DataProcessing:
         # depending on the user's requirements.
         if typ == "under":
             rus = RandomUnderSampler(random_state=rs)
-            # Updating self.x and self.y
             self.X, self.y = rus.fit_resample(self.X, self.y)
         if typ == "over":
             ros = RandomOverSampler(random_state=rs)
@@ -133,7 +142,7 @@ class DataProcessing:
         This function standardises the numeric columns of a dataframe. 
         """
         # Select only numeric features first
-        #self.X = self.data.drop(self.target, axis = 1)
+
         #self.X = self.data.loc[:, self.data.columns != self.target].values
         numeric_columns = []
         for col in self.X.columns:
@@ -142,33 +151,20 @@ class DataProcessing:
         scaler = preprocessing.StandardScaler().fit(self.X[numeric_columns]) 
         # Now we can standardise
         self.X[numeric_columns] = scaler.transform(self.X[numeric_columns])       
-            
-            
-            
+                      
     def pca_reduction(self, variance):
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
         self.X = pd.DataFrame(self.X)
 
-#%%
-path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Git'
-df_tran = pd.read_csv(path + "/01 - Data/Fraud detection/train_transaction.csv", index_col = 'TransactionID')
-df_id = pd.read_csv(path + "/01 - Data/Fraud detection/train_identity.csv", index_col = 'TransactionID')
+
+df_tran = pd.read_csv("../01 - Data/Fraud detection/train_transaction.csv", index_col = 'TransactionID')
+df_id = pd.read_csv("../01 - Data/Fraud detection/train_identity.csv", index_col = 'TransactionID')
 # Merging the data-set
 df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
-#%%
-numerical_cols = []
-categorical_cols = []
-
-for col in df_tot.columns:
-    if df_tot[col].dtype == 'object':
-        numerical_cols.append(col)
-    else:
-        categorical_cols.append(col)
-
-#%%
-# +
+# + endofcell="--"
+# # +
 # Testing the Preprocessing class
 df = DataProcessing(df_tot, 'isFraud')
 print("the shape of X: ", df.X.shape)
@@ -181,15 +177,27 @@ df.extract_timestamps()
 print('timestamps')
 print("the shape of X: ", df.X.shape)
 print("the shape of y: ", df.y.shape,"\n")
+
+numerical_cols = []
+categorical_cols = []
+
+for col in df.X.columns:
+    if df.X[col].dtype != 'object':
+        numerical_cols.append(col)
+    else:
+        categorical_cols.append(col)
+
 df.lblencoder()
 print('label encoder')
 print("the shape of X: ", df.X.shape)
 print("the shape of y: ", df.y.shape,"\n")
-attrib_list = list(df.data.columns)
 
-#df.fill_null(categorical_columns, 'mode')
-#df.fill_null(numerical_columns, 'median')
-df.fill_null(attrib_list, 'mean', integer = -999)
+#attrib_list = list(df.data.columns)
+#df.fill_null(attrib_list, 'mean', integer = -999)
+
+df.fill_null(categorical_cols, 'mode')
+df.fill_null(numerical_cols, 'median')
+
 print('filling in the null values')
 print("the shape of X: ", df.X.shape)
 print("the shape of y: ", df.y.shape,"\n")
@@ -207,6 +215,10 @@ print("the shape of X: ", df.X.shape)
 print("the shape of y: ", df.y.shape,"\n")
 # -
 
+# --
+
+
+
 y_train = df.y
 X_train = df.X
 
@@ -216,11 +228,7 @@ df.y.shape
 
 y_train.value_counts()
 
-missing_values_table(X_train)
-
-
-
-X_train.to_csv(r'../01 - Data/X_train.csv')
-y_train.to_csv(r'../01 - Data/y_train.csv')
+X_train.to_csv(r'../01 - Data/02_X_train.csv')
+y_train.to_csv(r'../01 - Data/02_y_train.csv')
 
 
