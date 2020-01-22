@@ -3,6 +3,7 @@
 # #Please install this package with Python 3.8.1
 # pip install -U imbalanced-learn
 
+import pandas as pd
 import numpy as np
 import datetime
 from sklearn import preprocessing
@@ -54,15 +55,12 @@ class DataProcessing:
         self.target = target
         self.X = self.data.drop(target, axis = 1)
         self.y = self.data[target]
-        #self.X = data.loc[:, data.columns != target].values
-        #self.y = data.loc[:, [target]].values
     
     def threshold_col_del(self, threshold):
         """
         This function keeps only columns that have a share of non-missing values above the threshold. 
         """
-        self.data = self.data.dropna(thresh=threshold*len(self.data), axis=1)
-        return self.data   
+        self.data = self.data.dropna(thresh=threshold*len(self.data), axis=1) 
     
     def lblencoder(self):
         """
@@ -73,7 +71,6 @@ class DataProcessing:
                 lbl = preprocessing.LabelEncoder()
                 lbl.fit(list(self.data[i].values))
                 self.data[i] = lbl.transform(list(self.data[i].values))
-        return self.data
         
     def extract_timestamps(self, start_date = '2017-12-01'):
         """
@@ -88,7 +85,6 @@ class DataProcessing:
         self.data['Hours'] = self.data['Date'].dt.hour
         self.data['Minutes'] = self.data['Date'].dt.minute
         self.data.drop('Date', axis = 1, inplace = True)
-        return self.data
     
     def fill_null(self, attribute_list, stat, integer = -999): 
         """
@@ -114,7 +110,6 @@ class DataProcessing:
                 self.data[i].fillna(integer, inplace=True) 
                 self.data[i] = self.data[i].astype(float)                
             #print(self.data[i].dtype)
-        return self.data
     
     def standardiser(self):
         """
@@ -130,8 +125,7 @@ class DataProcessing:
         scaler = preprocessing.StandardScaler().fit(self.X[numeric_columns]) 
         # Now we can standardise
         self.X[numeric_columns] = scaler.transform(self.X[numeric_columns])
-        return self.X
-    
+  
     def balancesample(self, typ, rs=42):
         self.X = self.data.drop(self.target, axis = 1)
         self.y = self.data[self.target]
@@ -141,13 +135,11 @@ class DataProcessing:
         if typ == "over":
             ros = RandomOverSampler(random_state=rs)
             self.X, self.y = ros.fit_resample(self.X, self.y)
-        return self.X, self.y
 
     def pca_reduction(self, variance):
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
         self.X = pd.DataFrame(self.X)
-        return self.X
 
 
 
@@ -155,26 +147,28 @@ df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'Transac
 df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
 df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
-df_tot['TransactionDT']
-
 # +
 df = DataProcessing(df_tot, 'isFraud')
 df.threshold_col_del(0.25)
 df.extract_timestamps()
 df.lblencoder()
-
 attrib_list = list(df.data.columns)
 df.fill_null(attrib_list, 'mean', integer = -999)
-df.standardiser()
+
 df.balancesample("over")
+df.standardiser()
 df.pca_reduction(0.95)
 # -
 
 y_train = df.y
 X_train = df.X
 
+y_train.value_counts()
+
 missing_values_table(X_train)
 
+X_train.to_csv(r'../01 - Data/X_train.csv')
+y_train.to_csv(r'../01 - Data/y_train.csv')
 
 
 
