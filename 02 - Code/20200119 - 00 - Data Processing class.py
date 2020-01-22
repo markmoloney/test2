@@ -111,20 +111,7 @@ class DataProcessing:
                 self.data[i] = self.data[i].astype(float)                
             #print(self.data[i].dtype)
     
-    def standardiser(self):
-        """
-        This function standardises the numeric columns of a dataframe. 
-        """
-        # Select only numeric features first
-        self.X = self.data.drop(self.target, axis = 1)
-        #self.X = self.data.loc[:, self.data.columns != self.target].values
-        numeric_columns = []
-        for col in self.X.columns:
-            if self.X[col].dtype!='object':
-                numeric_columns.append(col)
-        scaler = preprocessing.StandardScaler().fit(self.X[numeric_columns]) 
-        # Now we can standardise
-        self.X[numeric_columns] = scaler.transform(self.X[numeric_columns])
+
   
     def balancesample(self, typ, rs=42):
         #Updating the self.X and self.y
@@ -140,6 +127,23 @@ class DataProcessing:
             ros = RandomOverSampler(random_state=rs)
             self.X, self.y = ros.fit_resample(self.X, self.y)
 
+    def standardiser(self):
+        """
+        This function standardises the numeric columns of a dataframe. 
+        """
+        # Select only numeric features first
+        #self.X = self.data.drop(self.target, axis = 1)
+        #self.X = self.data.loc[:, self.data.columns != self.target].values
+        numeric_columns = []
+        for col in self.X.columns:
+            if self.X[col].dtype!='object':
+                numeric_columns.append(col)
+        scaler = preprocessing.StandardScaler().fit(self.X[numeric_columns]) 
+        # Now we can standardise
+        self.X[numeric_columns] = scaler.transform(self.X[numeric_columns])       
+            
+            
+            
     def pca_reduction(self, variance):
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
@@ -155,26 +159,56 @@ df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='T
 # +
 # Testing the Preprocessing class
 df = DataProcessing(df_tot, 'isFraud')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 df.threshold_col_del(0.25)
+print('threshold')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 df.extract_timestamps()
+print('timestamps')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 df.lblencoder()
+print('label encoder')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 attrib_list = list(df.data.columns)
-df.fill_null(attrib_list, 'mean', integer = -999)
 
+#df.fill_null(categorical_columns, 'mode')
+#df.fill_null(numerical_columns, 'median')
+df.fill_null(attrib_list, 'mean', integer = -999)
+print('filling in the null values')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 df.balancesample("over")
+print('balance sample')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 df.standardiser()
+print('standardiser')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 df.pca_reduction(0.95)
+print('pca')
+print("the shape of X: ", df.X.shape)
+print("the shape of y: ", df.y.shape,"\n")
 # -
 
 y_train = df.y
 X_train = df.X
 
+df.X.shape
+
+df.y.shape
+
 y_train.value_counts()
 
 missing_values_table(X_train)
 
+
+
 X_train.to_csv(r'../01 - Data/X_train.csv')
 y_train.to_csv(r'../01 - Data/y_train.csv')
-
 
 
