@@ -11,6 +11,7 @@ from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
 from sklearn.decomposition import PCA
 
+#%%
 
 # This will update the requirement packages the notebook.
 # ! pip freeze > requirements.txt
@@ -145,13 +146,24 @@ class DataProcessing:
         self.X = pca.fit_transform(self.X)
         self.X = pd.DataFrame(self.X)
 
-
-
-df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
-df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
+#%%
+path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Git'
+df_tran = pd.read_csv(path + "/01 - Data/Fraud detection/train_transaction.csv", index_col = 'TransactionID')
+df_id = pd.read_csv(path + "/01 - Data/Fraud detection/train_identity.csv", index_col = 'TransactionID')
 # Merging the data-set
 df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
+#%%
+numerical_cols = []
+categorical_cols = []
+
+for col in df_tot.columns:
+    if df_tot[col].dtype == 'object':
+        numerical_cols.append(col)
+    else:
+        categorical_cols.append(col)
+
+#%%
 # +
 # Testing the Preprocessing class
 df = DataProcessing(df_tot, 'isFraud')
