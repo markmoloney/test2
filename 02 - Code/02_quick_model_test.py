@@ -18,10 +18,13 @@ import numpy as np
 import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 X_train = pd.read_csv("../01 - Data/X_train.csv")
 y_train = pd.read_csv('../01 - Data/y_train.csv', header = None, index_col = 0, squeeze = bool)
 X_train = X_train.drop('Unnamed: 0', axis=1)
+
+
 
 # +
 import time
