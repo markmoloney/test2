@@ -3,8 +3,9 @@
 # #Please install this package with Python 3.8.1
 # pip install -U imbalanced-learn
 
-import numpy as np
 import pandas as pd
+import numpy as np
+import datetime
 from sklearn import preprocessing
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
@@ -59,8 +60,7 @@ class DataProcessing:
         """
         This function keeps only columns that have a share of non-missing values above the threshold. 
         """
-        self.data = self.data.dropna(thresh=threshold*len(self.data), axis=1)
-        return self.data   
+        self.data = self.data.dropna(thresh=threshold*len(self.data), axis=1) 
     
     def lblencoder(self):
         """
@@ -71,7 +71,20 @@ class DataProcessing:
                 lbl = preprocessing.LabelEncoder()
                 lbl.fit(list(self.data[i].values))
                 self.data[i] = lbl.transform(list(self.data[i].values))
-        return self.data
+        
+    def extract_timestamps(self, start_date = '2017-12-01'):
+        """
+        This function extracts different time stamps from the variable 'TransactionDT'
+        such as day of the month, day of the week, hours and minutes and converts them
+        into extra variables of the dataframe.
+        """
+        startdate = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        self.data["Date"] = self.data['TransactionDT'].apply(lambda x: (startdate + datetime.timedelta(seconds=x)))
+        self.data['Day of the month'] = self.data['Date'].dt.day
+        self.data['Day of the week'] = self.data['Date'].dt.dayofweek
+        self.data['Hours'] = self.data['Date'].dt.hour
+        self.data['Minutes'] = self.data['Date'].dt.minute
+        self.data.drop('Date', axis = 1, inplace = True)
     
     def fill_null(self, attribute_list, stat, integer = -999): 
         """
@@ -97,7 +110,6 @@ class DataProcessing:
                 self.data[i].fillna(integer, inplace=True) 
                 self.data[i] = self.data[i].astype(float)                
             #print(self.data[i].dtype)
-        return self.data
     
     def standardiser(self):
         """
@@ -113,8 +125,7 @@ class DataProcessing:
         scaler = preprocessing.StandardScaler().fit(self.X[numeric_columns]) 
         # Now we can standardise
         self.X[numeric_columns] = scaler.transform(self.X[numeric_columns])
-        return self.X
-    
+  
     def balancesample(self, typ, rs=42):
         #Updating the self.X and self.y
         self.X = self.data.drop(self.target, axis = 1)
@@ -128,17 +139,14 @@ class DataProcessing:
         if typ == "over":
             ros = RandomOverSampler(random_state=rs)
             self.X, self.y = ros.fit_resample(self.X, self.y)
-            # Updating self.x and self.y
-        return self.X, self.y
 
     def pca_reduction(self, variance):
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
         self.X = pd.DataFrame(self.X)
-        return self.X
 
 
-# Loading the data-set
+
 df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
 df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
 # Merging the data-set
@@ -148,20 +156,25 @@ df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='T
 # Testing the Preprocessing class
 df = DataProcessing(df_tot, 'isFraud')
 df.threshold_col_del(0.25)
+df.extract_timestamps()
 df.lblencoder()
-
 attrib_list = list(df.data.columns)
 df.fill_null(attrib_list, 'mean', integer = -999)
 
+df.balancesample("over")
 df.standardiser()
 df.pca_reduction(0.95)
-df.balancesample("over")
 # -
 
 y_train = df.y
 X_train = df.X
+
 y_train.value_counts()
 
 missing_values_table(X_train)
+
+X_train.to_csv(r'../01 - Data/X_train.csv')
+y_train.to_csv(r'../01 - Data/y_train.csv')
+
 
 
