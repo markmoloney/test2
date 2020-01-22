@@ -185,7 +185,7 @@ model.compile(optimizer = optimizers.Adam(),
               metrics=['accuracy'])
 
 
-model1 = model.fit(X_train, y_train, epochs=500, batch_size = 64,
+model1 = model.fit(X_train, y_train, epochs=200, batch_size = 64,
           validation_split = 0.1,
           callbacks = [es])
 
