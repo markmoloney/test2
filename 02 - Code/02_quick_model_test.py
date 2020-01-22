@@ -19,16 +19,9 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-X_train = pd.read_csv("X_train_processed.csv")
-
-y_train = pd.Series.from_csv('y_train.csv')
-
-X_pretest = pd.read_csv("X_pretest_processed.csv")
-
-y_pretest = pd.Series.from_csv('y_pretest.csv')
-
+X_train = pd.read_csv("../01 - Data/X_train.csv")
+y_train = pd.read_csv('../01 - Data/y_train.csv', header = None, index_col = 0, squeeze = bool)
 X_train = X_train.drop('Unnamed: 0', axis=1)
-X_pretest = X_pretest.drop('Unnamed: 0', axis=1)
 
 # +
 import time
