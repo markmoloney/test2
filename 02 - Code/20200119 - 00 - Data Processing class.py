@@ -228,7 +228,7 @@ df.y.shape
 
 y_train.value_counts()
 
-X_train.to_csv(r'../01 - Data/02_X_train.csv')
-y_train.to_csv(r'../01 - Data/02_y_train.csv')
+X_train.to_csv(r'../01 - Data/02_X_train.csv', index = False)
+y_train.to_csv(r'../01 - Data/02_y_train.csv', index = False)
 
 
