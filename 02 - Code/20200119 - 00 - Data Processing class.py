@@ -4,6 +4,7 @@
 # pip install -U imbalanced-learn
 
 import numpy as np
+import pandas as pd
 from sklearn import preprocessing
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
@@ -117,15 +118,15 @@ class DataProcessing:
         return self.X
     
     def balancesample(self, typ, rs=42):
-        self.X = self.data.loc[:, data.columns != target].values
-        self.y = self.data.loc[:, [target]].values
+        self.X = self.data.drop(self.target, axis = 1)
+        self.y = self.data[self.target]
         if typ == "under":
             rus = RandomUnderSampler(random_state=rs)
-            X_res, y_res = rus.fit_resample(self.X, self.y)
+            self.X, self.y = rus.fit_resample(self.X, self.y)
         if typ == "over":
             ros = RandomOverSampler(random_state=rs)
-            X_res, y_res = ros.fit_resample(self.X, self.y)
-        return X_res, y_res
+            self.X, self.y = ros.fit_resample(self.X, self.y)
+        return self.X, self.y
 
     def pca_reduction(self, variance):
         pca = PCA(n_components = variance)
@@ -148,10 +149,12 @@ df.fill_null(attrib_list, 'mean', integer = -999)
 
 df.standardiser()
 df.pca_reduction(0.95)
+df.balancesample("over")
 # -
 
 y_train = df.y
 X_train = df.X
+y_train.value_counts()
 
 missing_values_table(X_train)
 
