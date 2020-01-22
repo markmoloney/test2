@@ -9,11 +9,12 @@ import pandas as pd
 from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
-from keras.layers import Dense
+from keras.layers import Dense, BatchNormalization
 from keras import regularizers, optimizers, losses
 from keras.callbacks import EarlyStopping
 import datetime
 
+np.random.seed(666)
 
 # In[ ]:
 
@@ -153,7 +154,7 @@ data.drop('Dates', axis = 1, inplace = True)
 #X_test = data[int(0.90*len(data)):].copy()
 #y_test = target[int(0.90*len(target)):].copy()
 
-X_train, X_test, y_train, y_test = train_test_split(data, target, train_size=0.9, random_state = 666)
+X_train, X_test, y_train, y_test = train_test_split(data, target, train_size=0.9)
 
 toc = time.time()
 print("Time elapsed processing data: %.2f minutes" % ((toc-tic)/60))
@@ -168,17 +169,20 @@ model = Sequential()
 model.add(Dense(128, activation = 'relu',
                 input_dim = X_train.shape[1],
                 kernel_regularizer = regularizers.l2(0.001)))
+model.add(BatchNormalization())
 model.add(Dense(64, activation = 'relu', 
                 kernel_regularizer = regularizers.l2(0.001))) 
 model.add(Dense(64, activation = 'relu', 
                 kernel_regularizer = regularizers.l2(0.001)))
 model.add(Dense(64, activation = 'relu'))
+model.add(BatchNormalization())
 model.add(Dense(32, activation = 'relu'))
 model.add(Dense(16, activation = 'relu'))
-model.add(Dense(8, activation = 'relu'))   
+model.add(Dense(8, activation = 'relu'))
+model.add(BatchNormalization())   
 model.add(Dense(1, activation = 'sigmoid'))
 
-es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=30)
+es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=20)
     
 model.compile(optimizer = optimizers.Adam(),
               loss = losses.binary_crossentropy,
@@ -199,6 +203,15 @@ plt.plot(model1.history['accuracy'])
 plt.plot(model1.history['val_accuracy'])
 plt.title('Model Accuracy')
 plt.ylabel('Accuracy')
+plt.xlabel('Epoch')
+plt.legend(['train', 'val'])
+plt.show()
+
+plt.figure(figsize=(6,4))
+plt.plot(model1.history['loss'])
+plt.plot(model1.history['val_loss'])
+plt.title('Model Loss')
+plt.ylabel('Loss')
 plt.xlabel('Epoch')
 plt.legend(['train', 'val'])
 plt.show()
