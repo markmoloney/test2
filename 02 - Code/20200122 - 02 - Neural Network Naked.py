@@ -3,27 +3,29 @@
 
 # In[2]:
 
-import time
 import numpy as np
 import pandas as pd
-from sklearn import preprocessing
 from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, BatchNormalization
 from keras import regularizers, optimizers, losses
 from keras.callbacks import EarlyStopping
-import datetime
 import matplotlib.pyplot as plt
 
 np.random.seed(666)
 
+
+#%% Import data
+path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Git/01 - Data/Fraud detection'
+X_train = pd.read_csv(path + '/X_train.csv')
+y_train = pd.read_csv(path + '/y_train.csv', header=None)
 
 #%% 
 # ----------------------------------------------------------------------------
 # ------------------------------ NEURAL NETWORK ------------------------------
 # ----------------------------------------------------------------------------
 model = Sequential()
-model.add(Dense(128, activation = 'relu',
+model.add(Dense(X_train.shape[1], activation = 'relu',
                 input_dim = X_train.shape[1],
                 kernel_regularizer = regularizers.l2(0.001)))
 model.add(BatchNormalization())
