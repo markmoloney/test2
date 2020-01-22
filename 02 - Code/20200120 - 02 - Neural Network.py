@@ -13,6 +13,7 @@ from keras.layers import Dense, BatchNormalization
 from keras import regularizers, optimizers, losses
 from keras.callbacks import EarlyStopping
 import datetime
+import matplotlib.pyplot as plt
 
 np.random.seed(666)
 
@@ -182,7 +183,7 @@ model.add(Dense(8, activation = 'relu'))
 model.add(BatchNormalization())   
 model.add(Dense(1, activation = 'sigmoid'))
 
-es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=20)
+es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=10)
     
 model.compile(optimizer = optimizers.Adam(),
               loss = losses.binary_crossentropy,
@@ -196,7 +197,6 @@ model1 = model.fit(X_train, y_train, epochs=200, batch_size = 64,
 
 
 #%% Visualise model performance
-import matplotlib.pyplot as plt
 
 plt.figure(figsize=(6,4))
 plt.plot(model1.history['accuracy'])
