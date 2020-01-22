@@ -220,7 +220,7 @@ missing_values_table(X_train)
 
 
 
-X_train.to_csv(r'../01 - Data/X_train.csv')
-y_train.to_csv(r'../01 - Data/y_train.csv')
+X_train.to_csv(path + '/01 - Data/Fraud detection/X_train.csv', index = False)
+y_train.to_csv(path + '/01 - Data/Fraud detection/y_train.csv', index = False)
 
 
