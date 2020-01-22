@@ -17,8 +17,10 @@ np.random.seed(666)
 
 #%% Import data
 path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Git/01 - Data/Fraud detection'
-X_train = pd.read_csv(path + '/X_train.csv')
-y_train = pd.read_csv(path + '/y_train.csv', header=None)
+data = pd.read_csv(path + '/X_train.csv')
+target = pd.read_csv(path + '/y_train.csv', header=None)
+
+X_train, X_test, y_train, y_test = train_test_split(data, target, test_size = 0.1)
 
 #%% 
 # ----------------------------------------------------------------------------
@@ -41,7 +43,7 @@ model.add(Dense(8, activation = 'relu'))
 model.add(BatchNormalization())   
 model.add(Dense(1, activation = 'sigmoid'))
 
-es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=10)
+es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=5)
     
 model.compile(optimizer = optimizers.Adam(),
               loss = losses.binary_crossentropy,
@@ -85,7 +87,7 @@ print('Accuracy in test set:', test_acc)
 
 #%% Shenanigans
 cuisi = pd.DataFrame()
-cuisi['real'] = y_train
+cuisi['real'] = y_train[0]
 cuisi['pred_class'] = model.predict_classes(X_train)
 cuisi['pred_proba'] = model.predict(X_train)
 
