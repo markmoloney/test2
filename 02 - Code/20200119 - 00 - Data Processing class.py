@@ -54,8 +54,6 @@ class DataProcessing:
         self.target = target
         self.X = self.data.drop(target, axis = 1)
         self.y = self.data[target]
-        #self.X = data.loc[:, data.columns != target].values
-        #self.y = data.loc[:, [target]].values
     
     def threshold_col_del(self, threshold):
         """
@@ -118,14 +116,19 @@ class DataProcessing:
         return self.X
     
     def balancesample(self, typ, rs=42):
+        #Updating the self.X and self.y
         self.X = self.data.drop(self.target, axis = 1)
         self.y = self.data[self.target]
+        # This conditional statement runs undersampling and oversampling
+        # depending on the user's requirements.
         if typ == "under":
             rus = RandomUnderSampler(random_state=rs)
+            # Updating self.x and self.y
             self.X, self.y = rus.fit_resample(self.X, self.y)
         if typ == "over":
             ros = RandomOverSampler(random_state=rs)
             self.X, self.y = ros.fit_resample(self.X, self.y)
+            # Updating self.x and self.y
         return self.X, self.y
 
     def pca_reduction(self, variance):
@@ -135,11 +138,14 @@ class DataProcessing:
         return self.X
 
 
+# Loading the data-set
 df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
 df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
+# Merging the data-set
 df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
 # +
+# Testing the Preprocessing class
 df = DataProcessing(df_tot, 'isFraud')
 df.threshold_col_del(0.25)
 df.lblencoder()
