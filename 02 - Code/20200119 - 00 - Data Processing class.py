@@ -4,7 +4,7 @@
 # pip install -U imbalanced-learn
 
 import numpy as np
-import pandas as pd
+import datetime
 from sklearn import preprocessing
 from imblearn.under_sampling import RandomUnderSampler
 from imblearn.over_sampling import RandomOverSampler
@@ -74,6 +74,21 @@ class DataProcessing:
                 lbl.fit(list(self.data[i].values))
                 self.data[i] = lbl.transform(list(self.data[i].values))
         return self.data
+        
+    def extract_timestamps(self, start_date = '2017-12-01'):
+        """
+        This function extracts different time stamps from the variable 'TransactionDT'
+        such as day of the month, day of the week, hours and minutes and converts them
+        into extra variables of the dataframe.
+        """
+        startdate = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+        self.data["Date"] = self.data['TransactionDT'].apply(lambda x: (startdate + datetime.timedelta(seconds=x)))
+        self.data['Day of the month'] = self.data['Date'].dt.day
+        self.data['Day of the week'] = self.data['Date'].dt.dayofweek
+        self.data['Hours'] = self.data['Date'].dt.hour
+        self.data['Minutes'] = self.data['Date'].dt.minute
+        self.data.drop('Date', axis = 1, inplace = True)
+        return self.data
     
     def fill_null(self, attribute_list, stat, integer = -999): 
         """
@@ -135,27 +150,31 @@ class DataProcessing:
         return self.X
 
 
+
 df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
 df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
 df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
+df_tot['TransactionDT']
+
 # +
 df = DataProcessing(df_tot, 'isFraud')
 df.threshold_col_del(0.25)
+df.extract_timestamps()
 df.lblencoder()
 
 attrib_list = list(df.data.columns)
 df.fill_null(attrib_list, 'mean', integer = -999)
-
 df.standardiser()
-df.pca_reduction(0.95)
 df.balancesample("over")
+df.pca_reduction(0.95)
 # -
 
 y_train = df.y
 X_train = df.X
-y_train.value_counts()
 
 missing_values_table(X_train)
+
+
 
 
