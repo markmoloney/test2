@@ -46,11 +46,10 @@ model.add(Dense(32, activation = 'relu'))
 model.add(Dense(32, activation = 'relu'))
 model.add(Dense(32, activation = 'relu'))
 model.add(Dense(16, activation = 'relu'))
-model.add(Dense(8, activation = 'relu'))
-model.add(BatchNormalization())   
+model.add(Dense(8, activation = 'relu')) 
 model.add(Dense(1, activation = 'sigmoid'))
 
-es = EarlyStopping(monitor='val_loss', mode='auto', patience=5)
+es = EarlyStopping(monitor='val_loss', mode='auto', patience=1)
     
 model.compile(optimizer = optimizers.Adam(),
               loss = losses.binary_crossentropy,
