@@ -93,7 +93,7 @@ print('The ROC-AUC score is:', roc_auc_score(y_test, y_pred))
 print('The accuracy score is:', accuracy_score(y_test, y_pred))
 print('The precision score is:', precision_score(y_test, y_pred))
 print('The recall score is:', recall_score(y_test, y_pred))
-print('The f1 score is:', f1_score(y_test, y_pred))
+print('The F1 score is:', f1_score(y_test, y_pred))
 
 
 
