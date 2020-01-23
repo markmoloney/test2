@@ -156,6 +156,11 @@ class DataProcessing:
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
         self.X = pd.DataFrame(self.X)
+        self.pca = pca
+        
+    def pca_transform(self):
+        self.X_test = pca.transform(self.X_test)
+        
 
 
 # df_tran = pd.read_csv("../01 - Data/Fraud detection/train_transaction.csv", index_col = 'TransactionID')
@@ -163,7 +168,6 @@ class DataProcessing:
 # # Merging the data-set
 # df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
-# + [markdown]
 # # # +
 # # Testing the Preprocessing class
 # df = DataProcessing(df_tot, 'isFraud')
@@ -215,7 +219,6 @@ class DataProcessing:
 # print("the shape of y: ", df.y.shape,"\n")
 # # -
 #
-# -
 df_train_split = pd.read_csv("../01 - Data/df_train_split.csv")
 df_test_split = pd.read_csv("../01 - Data/df_test_split.csv")
 
