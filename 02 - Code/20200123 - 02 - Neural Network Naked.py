@@ -10,10 +10,11 @@ from keras.layers import Dense, BatchNormalization
 from keras import regularizers, optimizers, losses
 from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
-
 from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_auc_score
+from keras.initializers import glorot_normal
 
-np.random.seed(666)
+seed = 666
+np.random.seed(seed)
 
 
 #%% Import data
@@ -34,7 +35,8 @@ y_test = test['isFraud'].copy()
 model = Sequential()
 model.add(Dense(X_train.shape[1], activation = 'relu',
                 input_dim = X_train.shape[1],
-                kernel_regularizer = regularizers.l2(0.001)))
+                kernel_regularizer = regularizers.l2(0.001),
+                kernel_initializer = glorot_normal(seed = seed)))
 model.add(BatchNormalization())
 model.add(Dense(64, activation = 'relu', 
                 kernel_regularizer = regularizers.l2(0.001))) 
