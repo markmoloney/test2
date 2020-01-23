@@ -156,68 +156,123 @@ class DataProcessing:
         pca = PCA(n_components = variance)
         self.X = pca.fit_transform(self.X)
         self.X = pd.DataFrame(self.X)
+        self.pca = pca
+        
+    def pca_transform(self):
+        self.X_test = self.pca.transform(self.X_test)
+        
 
 
-df_tran = pd.read_csv("../01 - Data/Fraud detection/train_transaction.csv", index_col = 'TransactionID')
-df_id = pd.read_csv("../01 - Data/Fraud detection/train_identity.csv", index_col = 'TransactionID')
-# Merging the data-set
-df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
+# df_tran = pd.read_csv("../01 - Data/Fraud detection/train_transaction.csv", index_col = 'TransactionID')
+# df_id = pd.read_csv("../01 - Data/Fraud detection/train_identity.csv", index_col = 'TransactionID')
+# # Merging the data-set
+# df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 
-# + endofcell="--"
-# # +
-# Testing the Preprocessing class
-df = DataProcessing(df_tot, 'isFraud')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
-df.threshold_col_del(0.25)
-print('threshold')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
-df.extract_timestamps()
-print('timestamps')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
+# # # +
+# # Testing the Preprocessing class
+# df = DataProcessing(df_tot, 'isFraud')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+# df.threshold_col_del(0.25)
+# print('threshold')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+# df.extract_timestamps()
+# print('timestamps')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+#
+# numerical_cols = []
+# categorical_cols = []
+#
+# for col in df.X.columns:
+#     if df.X[col].dtype != 'object':
+#         numerical_cols.append(col)
+#     else:
+#         categorical_cols.append(col)
+#
+# df.lblencoder()
+# print('label encoder')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+#
+# #attrib_list = list(df.data.columns)
+# #df.fill_null(attrib_list, 'mean', integer = -999)
+#
+# df.fill_null(categorical_cols, 'mode')
+# df.fill_null(numerical_cols, 'median')
+#
+# print('filling in the null values')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+# df.balancesample("over")
+# print('balance sample')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+# df.standardiser()
+# print('standardiser')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+# df.pca_reduction(0.95)
+# print('pca')
+# print("the shape of X: ", df.X.shape)
+# print("the shape of y: ", df.y.shape,"\n")
+# # -
+#
+df_train_split = pd.read_csv("../01 - Data/df_train_split.csv")
+df_test_split = pd.read_csv("../01 - Data/df_test_split.csv")
+
+
+# +
+df_train_split_pp = DataProcessing(df_train_split, 'isFraud')
+df_train_split_pp.threshold_col_del(0.25)
+
+df_train_split_pp.extract_timestamps()
 
 numerical_cols = []
 categorical_cols = []
 
-for col in df.X.columns:
-    if df.X[col].dtype != 'object':
+for col in df_train_split_pp.X.columns:
+    if df_train_split_pp.X[col].dtype != 'object':
         numerical_cols.append(col)
     else:
         categorical_cols.append(col)
+df_train_split_pp.lblencoder()
+df_train_split_pp.fill_null(categorical_cols, 'mode')
+df_train_split_pp.fill_null(numerical_cols, 'median')
 
-df.lblencoder()
-print('label encoder')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
-
-#attrib_list = list(df.data.columns)
-#df.fill_null(attrib_list, 'mean', integer = -999)
-
-df.fill_null(categorical_cols, 'mode')
-df.fill_null(numerical_cols, 'median')
-
-print('filling in the null values')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
-df.balancesample("over")
-print('balance sample')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
-df.standardiser()
-print('standardiser')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
-df.pca_reduction(0.95)
-print('pca')
-print("the shape of X: ", df.X.shape)
-print("the shape of y: ", df.y.shape,"\n")
+df_train_split_pp.balancesample("over")
+df_train_split_pp.standardiser()
+df_train_split_pp.pca_reduction(0.95)
 # -
 
-# --
 
+df_train_split_pp.X.head()
+df_train_split_ppc = pd.concat([df_train_split_pp.X, df_train_split_pp.y], axis=1, sort=False)
+df_train_split_ppc.to_csv("../01 - Data/df_train_split_ppc.csv", index=False)
 
+# +
+df_test_split_pp = DataProcessing(df_test_split, 'isFraud')
+df_test_split_pp.threshold_col_del(0.25)
+df_test_split_pp.extract_timestamps()
+
+numerical_cols = []
+categorical_cols = []
+
+for col in df_test_split_pp.X.columns:
+    if df_train_split_pp.X[col].dtype != 'object':
+        numerical_cols.append(col)
+    else:
+        categorical_cols.append(col)
+df_test_split_pp.lblencoder()
+df_test_split_pp.fill_null(categorical_cols, 'mode')
+df_test_split_pp.fill_null(numerical_cols, 'median')
+df_test_split_pp.standardiser()
+
+df_test_split_pp.X.head()
+df_test_split_ppc = pd.concat([df_test_split_pp.X, df_test_split_pp.y], axis=1, sort=False)
+df_test_split_ppc.to_csv("../01 - Data/df_test_split_ppc.csv", index=False)
+# -
 
 y_train = df.y
 X_train = df.X
