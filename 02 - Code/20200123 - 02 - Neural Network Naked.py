@@ -5,7 +5,6 @@
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import train_test_split
 from keras.models import Sequential
 from keras.layers import Dense, BatchNormalization
 from keras import regularizers, optimizers, losses
@@ -18,11 +17,15 @@ np.random.seed(666)
 
 
 #%% Import data
-path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Git/01 - Data/Fraud detection'
-data = pd.read_csv(path + '/X_train.csv')
-target = pd.read_csv(path + '/y_train.csv', header=None)
+path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Internal Project/01 - Data/Fraud detection'
+train = pd.read_csv(path + '/df_train_split_ppc.csv')
+test = pd.read_csv(path + '/df_test_split_ppc.csv')
 
-X_train, X_test, y_train, y_test = train_test_split(data, target, test_size = 0.1)
+X_train = train.drop('isFraud', axis = 1).copy()
+y_train = train['isFraud'].copy()
+
+X_test = test.drop('isFraud', axis = 1).copy()
+y_test = test['isFraud'].copy()
 
 #%% 
 # ----------------------------------------------------------------------------
@@ -40,12 +43,13 @@ model.add(Dense(64, activation = 'relu',
 model.add(Dense(64, activation = 'relu'))
 model.add(BatchNormalization())
 model.add(Dense(32, activation = 'relu'))
+model.add(Dense(32, activation = 'relu'))
+model.add(Dense(32, activation = 'relu'))
 model.add(Dense(16, activation = 'relu'))
-model.add(Dense(8, activation = 'relu'))
-model.add(BatchNormalization())   
+model.add(Dense(8, activation = 'relu')) 
 model.add(Dense(1, activation = 'sigmoid'))
 
-es = EarlyStopping(monitor='val_accuracy', mode='auto', patience=5)
+es = EarlyStopping(monitor='val_loss', mode='auto', patience=1)
     
 model.compile(optimizer = optimizers.Adam(),
               loss = losses.binary_crossentropy,
@@ -59,6 +63,7 @@ model1 = model.fit(X_train, y_train, epochs=200, batch_size = 64,
 
 
 #%% Visualise model performance
+# MODEL ACCURACY
 plt.figure(figsize=(6,4))
 plt.plot(model1.history['accuracy'])
 plt.plot(model1.history['val_accuracy'])
@@ -68,6 +73,7 @@ plt.xlabel('Epoch')
 plt.legend(['train', 'val'])
 plt.show()
 
+# MODEL LOSS
 plt.figure(figsize=(6,4))
 plt.plot(model1.history['loss'])
 plt.plot(model1.history['val_loss'])
@@ -87,30 +93,6 @@ print('The precision score is:', precision_score(y_test, y_pred))
 print('The recall score is:', recall_score(y_test, y_pred))
 print('The f1 score is:', f1_score(y_test, y_pred))
 
-
-#%% Confusion matrix
-import seaborn as sns
-from sklearn.metrics import confusion_matrix
-
-def confusion_matrices(y, y_pred):
-    y_pred = y_pred.round()
-    confusion_mat = confusion_matrix(y, y_pred)
-    sns.set_style("white")
-    plt.matshow(confusion_mat, cmap=plt.cm.gray)
-    plt.show()
-    row_sums = confusion_mat.sum(axis=1, keepdims=True)
-    normalised_confusion_mat = confusion_mat/row_sums
-    print(confusion_mat, "\n")
-    print(normalised_confusion_mat)
-    plt.matshow(normalised_confusion_mat, cmap=plt.cm.gray)
-    plt.show()
-    print('the precision score is : ', precision_score(y, y_pred))
-    print('the recall score is : ', recall_score(y, y_pred))
-    print('the f1 score is : ', f1_score(y, y_pred))
-    print('the accuracy score is : ', accuracy_score(y, y_pred))
-    return
-
-confusion_matrices(y_test, y_pred)
 
 
 
