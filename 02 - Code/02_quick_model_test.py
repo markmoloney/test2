@@ -75,7 +75,7 @@ def confusion_matrices(y, y_pred):
 GaussianNB = GaussianNB()
 SGDClassifier = SGDClassifier()
 RandomForest = RandomForestClassifier(n_estimators=10)
-XGDClassifier = XGBClassifier() 
+XGBClassifier = XGBClassifier() 
 
 scores_df = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_time'])
 
@@ -107,6 +107,24 @@ scores_df
 
 for i in ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_time']:
     scores_df.plot.bar(y = i) 
+
+# +
+test_scores = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc'])
+    
+for model, name in zip(models, names):
+    temp_list = []    
+    y_test_pred = model.predict(X_test)
+    
+    temp_list.append(accuracy_score(y_test, y_test_pred))
+    temp_list.append(precision_score(y_test, y_test_pred))
+    temp_list.append(recall_score(y_test, y_test_pred))
+    temp_list.append(f1_score(y_test, y_test_pred))
+    temp_list.append(roc_auc_score(y_test, y_test_pred))
+    
+    test_scores.loc[name] = temp_list
+
+test_scores
+# -
 
 y_test_pred = GaussianNB.predict(X_test)
 print('Naive Bayes')
