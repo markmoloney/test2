@@ -159,7 +159,7 @@ class DataProcessing:
         self.pca = pca
         
     def pca_transform(self):
-        self.X_test = pca.transform(self.X_test)
+        self.X_test = self.pca.transform(self.X_test)
         
 
 
