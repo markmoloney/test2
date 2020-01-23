@@ -13,12 +13,12 @@
 #     name: python3
 # ---
 
-import numpy as np
 import pandas as pd
 from sklearn.model_selection import train_test_split
 
-df_tran = pd.read_csv("../01 - Data/train_transaction.csv", index_col = 'TransactionID')
-df_id = pd.read_csv("../01 - Data/train_identity.csv", index_col = 'TransactionID')
+path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Git/01 - Data/Fraud detection'
+df_tran = pd.read_csv(path + "/Original data/train_transaction.csv", index_col = 'TransactionID')
+df_id = pd.read_csv(path + "/Original data/train_identity.csv", index_col = 'TransactionID')
 # Merging the data-set
 df_tot = df_tran.merge(df_id, how = 'left', left_on='TransactionID', right_on='TransactionID')
 df_tran.shape
@@ -27,14 +27,14 @@ df_tran.shape
 df_tot_X = df_tot.drop('isFraud', axis = 1)
 df_tot_y = df_tot['isFraud']
 
-df_tran_tst = pd.read_csv("../01 - Data/test_transaction.csv", index_col = 'TransactionID')
-df_id_tst = pd.read_csv("../01 - Data/test_identity.csv", index_col = 'TransactionID')
-df_tran_tst.shape
-#df_tran_tst['isFraud'].head()
+#df_tran_tst = pd.read_csv("../01 - Data/test_transaction.csv", index_col = 'TransactionID')
+#df_id_tst = pd.read_csv("../01 - Data/test_identity.csv", index_col = 'TransactionID')
+#df_tran_tst.shape
+##df_tran_tst['isFraud'].head()
 
-# Merging the data-set
-df_tot_tst = df_tran_tst.merge(df_id_tst, how = 'left', left_on='TransactionID', right_on='TransactionID')
-df_tot_tst.head()
+## Merging the data-set
+#df_tot_tst = df_tran_tst.merge(df_id_tst, how = 'left', left_on='TransactionID', right_on='TransactionID')
+#df_tot_tst.head()
 
 X_res, X_train_new, y_res, y_train_new = train_test_split(df_tot_X, df_tot_y, test_size=0.12, random_state=42, stratify = df_tot_y)
 
@@ -42,6 +42,6 @@ X_res, X_train_new, y_res, y_train_new = train_test_split(df_tot_X, df_tot_y, te
 
 df_train_new = pd.concat([X_train_new, y_train_new], axis=1, sort=False)
 
-df_train_new.to_csv("../01 - Data/new_train.csv", index=False)
+df_train_new.to_csv(path + "/train_stratified.csv", index=False)
 
 # df_test_new = X_test_new.merge(y_test_new)
