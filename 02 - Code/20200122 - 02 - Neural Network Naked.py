@@ -1,4 +1,4 @@
-t#!/usr/bin/env python
+#!/usr/bin/env python
 # coding: utf-8
 
 # In[2]:
@@ -11,6 +11,8 @@ from keras.layers import Dense, BatchNormalization
 from keras import regularizers, optimizers, losses
 from keras.callbacks import EarlyStopping
 import matplotlib.pyplot as plt
+
+from sklearn.metrics import precision_score, recall_score, f1_score, accuracy_score, roc_auc_score
 
 np.random.seed(666)
 
@@ -57,7 +59,6 @@ model1 = model.fit(X_train, y_train, epochs=200, batch_size = 64,
 
 
 #%% Visualise model performance
-
 plt.figure(figsize=(6,4))
 plt.plot(model1.history['accuracy'])
 plt.plot(model1.history['val_accuracy'])
@@ -77,20 +78,14 @@ plt.legend(['train', 'val'])
 plt.show()
 
 
-#%% Test model accuracy
-train_loss, train_acc = model.evaluate(X_train, y_train)
-test_loss, test_acc = model.evaluate(X_test, y_test)
+#%% Test model
+y_pred = model.predict_classes(X_test)
 
-print('Accuracy in training set:', train_acc)
-print('Accuracy in test set:', test_acc)
-
-
-#%% Shenanigans
-cuisi = pd.DataFrame()
-cuisi['real'] = y_train[0]
-cuisi['pred_class'] = model.predict_classes(X_train)
-cuisi['pred_proba'] = model.predict(X_train)
-
+print('The ROC-AUC score is:', roc_auc_score(y_test, y_pred))
+print('The accuracy score is:', accuracy_score(y_test, y_pred))
+print('The precision score is:', precision_score(y_test, y_pred))
+print('The recall score is:', recall_score(y_test, y_pred))
+print('The f1 score is:', f1_score(y_test, y_pred))
 
 
 
