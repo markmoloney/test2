@@ -19,10 +19,19 @@ import pandas as pd
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-X_train = pd.read_csv("../01 - Data/unbalanced_X_train.csv")
+#X_train = pd.read_csv("../01 - Data/unbalanced_X_train.csv")
 #y_train = pd.read_csv('../01 - Data/unbalanced_y_train.csv', header = None, index_col = 0, squeeze = bool)
 #X_train = X_train.drop('Unnamed: 0', axis=1)
-y_train = pd.read_csv("../01 - Data/unbalanced_y_train.csv", header = None)
+#y_train = pd.read_csv("../01 - Data/unbalanced_y_train.csv", header = None)
+
+# +
+df_train = pd.read_csv('../01 - Data/df_train_split_ppc.csv')
+df_test = pd.read_csv('../01 - Data/df_test_split_ppc.csv')
+
+y_train = df_train['isFraud']
+X_train = df_train.drop('isFraud', axis = 1)
+y_test = df_test['isFraud']
+X_test = df_test.drop('isFraud', axis = 1)
 # -
 
 import time
@@ -39,7 +48,8 @@ from sklearn.model_selection import cross_val_predict
 from sklearn.model_selection import cross_val_score
 from sklearn.model_selection import cross_validate
 
-
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
 def confusion_matrices(y, y_pred):
     y_pred = y_pred.round()
     confusion_mat = confusion_matrix(y, y_pred)
@@ -59,103 +69,105 @@ def confusion_matrices(y, y_pred):
     return
 
 
-X_train.shape
-
-y_train.shape
-
 # # doing this with cross_validate
 
 # +
-scores_df = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'run_time'])
+GaussianNB = GaussianNB()
+SGDClassifier = SGDClassifier()
+RandomForest = RandomForestClassifier(n_estimators=10)
+XGDClassifier = XGBClassifier() 
 
-models = [GaussianNB(), SGDClassifier()]
-names = ["Naive Bayes", "SGD Classifier"]
+scores_df = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_time'])
+
+models = [GaussianNB, SGDClassifier, RandomForest, XGBClassifier]
+names = ["Naive Bayes", "SGD Classifier", 'Random Forest Classifier', 'XGBClassifier']
 
 for model, name in zip(models, names):
     temp_list = []
     print(name)
-    start = time.time()
-    
+
+    model.fit(X_train, y_train)    
     scores = cross_validate(model, X_train, y_train,
-                                  scoring=('accuracy', 'precision', 'recall', 'f1', 'roc_auc'),
-                                  return_train_score=True, cv=10)
+                            scoring=('accuracy', 'precision', 'recall', 'f1', 'roc_auc'),
+                            return_train_score=True, cv=10)
     
     for score in ['accuracy', 'precision', 'recall', 'f1', 'roc_auc']:
-        if score == 'accuracy':
-            mean_score = scores['test_accuracy'].mean()
-        elif score == 'precision':
-            mean_score = scores['test_precision'].mean()       
-        elif score == 'recall':
-            mean_score = scores['test_recall'].mean()
-        elif score == 'f1':
-            mean_score = scores['test_f1'].mean()
-        elif score == 'auc':
-            mean_score = scores['test_roc_auc'].mean()
-        
+        mean_score = scores['test_'+score].mean()  
         print('{} mean : {}'.format(score, mean_score))
         temp_list.append(mean_score)
     
-    temp_list.append(time.time() - start)
-    
-    print("time to run: {}".format(time.time() - start))
+    temp_list.append(scores['fit_time'].mean())
+    print('average fit time: {}'.format(scores['fit_time'].mean()))
     print("\n")
     scores_df.loc[name] = temp_list
     
 # -
+
+scores_df
+
+for i in ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_time']:
+    scores_df.plot.bar(y = i) 
+
+y_test_pred = GaussianNB.predict(X_test)
+print('Naive Bayes')
+confusion_matrices(y_test, y_test_pred)
+
+y_test_pred = SGDClassifier.predict(X_test)
+print('SGDClassifier')
+confusion_matrices(y_test, y_test_pred)
+
+y_test_pred = XGBClassifier.predict(X_test)
+print('XGBClassifier')
+confusion_matrices(y_test, y_test_pred)
+
+y_test_pred = RandomForest.predict(X_test)
+print('RandomForest')
+confusion_matrices(y_test, y_test_pred)
+
+
+
+
 
 # # doing this with cross_val_predict
 
-# +
-scores_df = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'run_time'])
-
-models = [GaussianNB(), RandomForestClassifier(n_estimators=10), 
-            SGDClassifier(), XGBClassifier()]
-names = ["Naive Bayes", "Random Forest Classifier", "SGD Classifier", "XGBClassifier"]
-
-#models = [GaussianNB(), SGDClassifier()]
-#names = ['Naive Bayes', 'SGD Classifier']
-
-for model, name in zip(models, names):
-    temp_list = []
-    print(name)
-    start = time.time()
-    
-    y_train_pred = cross_val_predict(model, X_train, y_train, cv=10)
-    
-    for score in ["accuracy", "precision", "recall", "f1", 'roc_auc']:
-        if score == 'accuracy':
-            mean_score = accuracy_score(y_train, y_train_pred)
-        elif score == 'precision':
-            mean_score = precision_score(y_train, y_train_pred)          
-        elif score == 'recall':
-            mean_score = recall_score(y_train, y_train_pred)
-        elif score == 'f1':
-            mean_score = f1_score(y_train, y_train_pred)
-        elif score == 'auc':
-            mean_score = auc_roc_score(y_train, y_train_pred)
-        
-        print('{} mean : {}'.format(score, mean_score))
-        temp_list.append(mean_score)
-    
-    #doing it this way takes more time, because it runs cross_val_score 4 different times
-    #for score in ["accuracy", "precision", "recall", "f1"]:
-     #   mean_score = cross_val_score(model, X_train, y_train, scoring=score, cv=10).mean()
-     #   print('{} mean score: {}'.format(score, mean_score))
-    
-    
-    temp_list.append(time.time() - start)
-    print("time to run: {}".format(time.time() - start))
-    print("\n")
-    scores_df.loc[name] = temp_list
-# -
-
-scores_df
-
-scores_df
-
-for i in ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'run_time']:
-    scores_df.plot.bar(y = i) 
-
-
-
-
+# scores_df = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'run_time'])
+#
+# models = [GaussianNB(), RandomForestClassifier(n_estimators=10), 
+#             SGDClassifier(), XGBClassifier()]
+# names = ["Naive Bayes", "Random Forest Classifier", "SGD Classifier", "XGBClassifier"]
+#
+# #models = [GaussianNB(), SGDClassifier()]
+# #names = ['Naive Bayes', 'SGD Classifier']
+#
+# for model, name in zip(models, names):
+#     temp_list = []
+#     print(name)
+#     start = time.time()
+#     
+#     y_train_pred = cross_val_predict(model, X_train, y_train, cv=10)
+#     
+#     for score in ["accuracy", "precision", "recall", "f1", 'roc_auc']:
+#         if score == 'accuracy':
+#             mean_score = accuracy_score(y_train, y_train_pred)
+#         elif score == 'precision':
+#             mean_score = precision_score(y_train, y_train_pred)          
+#         elif score == 'recall':
+#             mean_score = recall_score(y_train, y_train_pred)
+#         elif score == 'f1':
+#             mean_score = f1_score(y_train, y_train_pred)
+#         elif score == 'auc':
+#             mean_score = auc_roc_score(y_train, y_train_pred)
+#         
+#         print('{} mean : {}'.format(score, mean_score))
+#         temp_list.append(mean_score)
+#     
+#     #doing it this way takes more time, because it runs cross_val_score 4 different times
+#     #for score in ["accuracy", "precision", "recall", "f1"]:
+#      #   mean_score = cross_val_score(model, X_train, y_train, scoring=score, cv=10).mean()
+#      #   print('{} mean score: {}'.format(score, mean_score))
+#     
+#     
+#     temp_list.append(time.time() - start)
+#     print("time to run: {}".format(time.time() - start))
+#     print("\n")
+#     scores_df.loc[name] = temp_list
