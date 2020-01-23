@@ -44,7 +44,7 @@ df_train_new = pd.concat([X_train_new, y_train_new], axis=1, sort=False)
 
 df_train_new.to_csv("../01 - Data/new_train.csv", index=False)
 
-df_train_split_X, df_test_split_X, df_train_split_y, df_test_split_y = train_test_split(X_train_new, y_train_new, test_size=0.11, random_state=42, stratify = y_train_new)
+df_train_split_X, df_test_split_X, df_train_split_y, df_test_split_y = train_test_split(X_train_new, y_train_new, test_size=0.20, random_state=42, stratify = y_train_new)
 df_train_split = pd.concat([df_train_split_X, df_train_split_y], axis=1, sort=False)
 df_test_split = pd.concat([df_test_split_X, df_test_split_y], axis=1, sort=False)
 
