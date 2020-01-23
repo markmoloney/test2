@@ -17,7 +17,7 @@ seed = 666
 np.random.seed(seed)
 
 
-#%% Import data
+#%% IMPORT DATA
 path = '/Users/alvaro.corrales.canoibm.com/Box/AutoAI Internal Project/01 - Data/Fraud detection'
 train = pd.read_csv(path + '/df_train_split_ppc.csv')
 test = pd.read_csv(path + '/df_test_split_ppc.csv')
@@ -28,10 +28,7 @@ y_train = train['isFraud'].copy()
 X_test = test.drop('isFraud', axis = 1).copy()
 y_test = test['isFraud'].copy()
 
-#%% 
-# ----------------------------------------------------------------------------
-# ------------------------------ NEURAL NETWORK ------------------------------
-# ----------------------------------------------------------------------------
+#%% NEURAL NETWORK SETTING AND TRAINING
 model = Sequential()
 model.add(Dense(X_train.shape[1], activation = 'relu',
                 input_dim = X_train.shape[1],
@@ -64,7 +61,7 @@ model1 = model.fit(X_train, y_train, epochs=200, batch_size = 64,
 
 
 
-#%% Visualise model performance
+#%% VISUALISE MODEL PERFORMANCE
 # MODEL ACCURACY
 plt.figure(figsize=(6,4))
 plt.plot(model1.history['accuracy'])
@@ -86,7 +83,7 @@ plt.legend(['train', 'val'])
 plt.show()
 
 
-#%% Test model
+#%% MODEL PERFORMANCE STATS
 y_pred = model.predict_classes(X_test)
 
 print('The ROC-AUC score is:', roc_auc_score(y_test, y_pred))
