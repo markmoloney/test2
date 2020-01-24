@@ -64,6 +64,7 @@ def confusion_matrices(y, y_pred):
     print('the recall score is : ', recall_score(y, y_pred))
     print('the f1 score is : ', f1_score(y, y_pred))
     print('the accuracy score is : ', accuracy_score(y, y_pred))
+    print('the accuracy score is : ', roc_auc_score(y, y_pred))
     return
 
 GaussianNB = GaussianNB()
@@ -74,7 +75,7 @@ XGBClassifier = XGBClassifier()
 scores_df = pd.DataFrame(columns = ['accuracy', 'precision', 'recall', 'f1', 'roc_auc', 'fit_time'])
 
 models = [GaussianNB, SGDClassifier, RandomForest, XGBClassifier]
-names = ["Naive Bayes", "SGD Classifier", 'Random Forest Classifier', 'XGBClassifier']
+names = ["Naive Bayes", "SGD Classifier", 'Random Forest Classifier', 'XGB Classifier']
 
 for model, name in zip(models, names):
     temp_list = []
@@ -128,7 +129,7 @@ for model, name in zip(models, names):
 #y_test_pred = RandomForest.predict(X_test)
 #print('RandomForest')
 #confusion_matrices(y_test, y_test_pred)
-    
+
 
 # +
 # Neural Network Setting and Training
@@ -210,4 +211,11 @@ test_scores.loc['Neural Network'] = temp_list
 
 test_scores
 
+y_test_pred = model.predict(X_test)
+confusion_matrices(y_test, y_test_pred)
 
+y_test_pred = XGBClassifier.predict(X_test)
+confusion_matrices(y_test, y_test_pred)
+
+y_test_pred = RandomForest.predict(X_test)
+confusion_matrices(y_test, y_test_pred)
